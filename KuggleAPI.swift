@@ -23,15 +23,23 @@ class KuggleAPI :NSObject {
         })
     }
     
-    func postRequest(endpointName: String, token: String, params: Dictionary<String,String>, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func postRequest(endpointName: String, token: String, params: Dictionary<String,String>, postRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         self.request("POST", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
-            getRequestCompletionHandler(json: json, responseError: error)
+            postRequestCompletionHandler(json: json, responseError: error)
         })
     }
 
     func request(methodName : String, endpointName: String, token: String, params: Dictionary<String,String>, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: ["Token": token], params: params, rawRequestCompletionHandler: {json, error -> Void in
-            requestCompletionHandler(json: json, responseError: error)
+            let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+            let metaCode = meta.objectForKey("code") as! NSInteger
+            let metaMsg = meta.objectForKey("msg") as! String
+            if (metaCode != 200) {
+                requestCompletionHandler(json: json, responseError: NSError(domain: metaMsg, code: metaCode, userInfo: nil))
+            } else {
+                requestCompletionHandler(json: json, responseError: error)
+            }
+            
         })
     }
     
