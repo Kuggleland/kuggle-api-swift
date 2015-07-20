@@ -5,8 +5,52 @@ This is a work in progress.
 
 ## Sample code to query
 
-Coming soon. Here is a sneak preview of what to expect.
+### Instantiating
+```swift
+  var kuggle = KuggleAPI.sharedInstance
+```
 
-* Registration by phone number
-* Registration using facebook
+### Registration by Phone Number
+
+* replace '+11234567' with a phone number thats valid.
+
+```swift
+  k.postRequest("test", token: "none", params: ["phonenumber": "+11234567"], getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+      let metaCode = meta.objectForKey("code") as! NSInteger
+      let metaMsg = meta.objectForKey("msg") as! String
+      println(metaCode)
+      println(metaMsg)
+      println(json)
+    } else {
+      println(err)
+    }
+  })
+```
+
+### Verify PIN
+
+* replace '+11234567' with a phone number thats valid.
+* replace '12345' with a PIN thats valid
+
+```swift
+  k.postRequest("test", token: "none", params: ["phonenumber": "+11234567", "pin": "12345"], getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+      let metaCode = meta.objectForKey("code") as! NSInteger
+      let metaMsg = meta.objectForKey("msg") as! String
+      println(metaCode)
+      println(metaMsg)
+      println(json)
+    } else {
+      println(err)
+    }
+  })
+```
+
+### Coming soon
+
+Here is a sneak preview of what to expect.
+
 * Getting and user profiles
