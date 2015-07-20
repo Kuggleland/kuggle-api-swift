@@ -24,7 +24,11 @@ This is a work in progress.
       println(metaMsg)
       println(json)
     } else {
-      println(err)
+      if let error : NSError = err as NSError!
+      {
+        println(error.code)
+        println(error.domain)
+      }
     }
   })
 ```
@@ -44,7 +48,11 @@ This is a work in progress.
       println(metaMsg)
       println(json)
     } else {
-      println(err)
+      if let error : NSError = err as NSError!
+      {
+        println(error.code)
+        println(error.domain)
+      }
     }
   })
 ```
