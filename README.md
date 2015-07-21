@@ -56,9 +56,36 @@ This is a work in progress.
     }
   })
 ```
+### Get User Profile
+
+This is an example how to fetch a user profile.
+It will return the following keys:
+* profilecreated - Is the user already known. This is usually set to false if registered with a phone number, as the number is verified but there is no profile.
+* profile - Shows the user's profile. Their 'facebookid' or 'phonenumber' (depends how they registered). Their 'firstname'. Their 'dob' in a friendly format. Their 'gender' (which is 'female', 'male', or 'other'). The persons 'invitecode'
+* meta - This is included in all responses. Will show information pertaining to the response itself.
+
+```swift
+  k.getRequest("profile", token: "Your Token Here", params: nil,  getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+      let metaCode = meta.objectForKey("code") as! NSInteger
+      let metaMsg = meta.objectForKey("msg") as! String
+      println(metaCode)
+      println(metaMsg)
+      println(json)
+    } else {
+      if let error : NSError = err as NSError!
+        {
+          println(error.code)
+          println(error.domain)
+        }
+    }
+  })
+```
 
 ### Coming soon
 
-Here is a sneak preview of what to expect.
+Although the API already supports these, here is a sneak preview of what to expect for the code examples
 
-* Getting and user profiles
+* Creating user profile
+* Registration by facebook
