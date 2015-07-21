@@ -17,7 +17,7 @@ class KuggleAPI :NSObject {
         return "https://api.kuggleland.com/1/"
     }
     
-    func getRequest(endpointName: String, token: String, params: Dictionary<String,String>, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func getRequest(endpointName: String, token: AnyObject?, params: Dictionary<String,String>, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         self.request("GET", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
             getRequestCompletionHandler(json: json, responseError: error)
         })
@@ -29,22 +29,36 @@ class KuggleAPI :NSObject {
         })
     }
 
-    func request(methodName : String, endpointName: String, token: String, params: Dictionary<String,String>, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
-        rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: ["Token": token], params: params, rawRequestCompletionHandler: {json, error -> Void in
-            let meta = (json as! NSDictionary)["meta"] as! NSDictionary
-            let metaCode = meta.objectForKey("code") as! NSInteger
-            let metaMsg = meta.objectForKey("msg") as! String
-            if (metaCode != 200) {
-                requestCompletionHandler(json: json, responseError: NSError(domain: metaMsg, code: metaCode, userInfo: nil))
-            } else {
-                requestCompletionHandler(json: json, responseError: error)
-            }
-            
-        })
+    func request(methodName : String, endpointName: String, token: AnyObject?, params: Dictionary<String,String>, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+        if let t : String = token as? String {
+            rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: ["Token": t], params: params, rawRequestCompletionHandler: {json, error -> Void in
+                let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+                let metaCode = meta.objectForKey("code") as! NSInteger
+                let metaMsg = meta.objectForKey("msg") as! String
+                if (metaCode != 200) {
+                    requestCompletionHandler(json: json, responseError: NSError(domain: metaMsg, code: metaCode, userInfo: nil))
+                } else {
+                    requestCompletionHandler(json: json, responseError: error)
+                }
+                
+            })
+        } else {
+            rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: nil, params: params, rawRequestCompletionHandler: {json, error -> Void in
+                let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+                let metaCode = meta.objectForKey("code") as! NSInteger
+                let metaMsg = meta.objectForKey("msg") as! String
+                if (metaCode != 200) {
+                    requestCompletionHandler(json: json, responseError: NSError(domain: metaMsg, code: metaCode, userInfo: nil))
+                } else {
+                    requestCompletionHandler(json: json, responseError: error)
+                }
+                
+            })
+        }
     }
     
     // Raw Request
-    func rawRequest(methodName : String, urlString: String, headers: Dictionary<String,String>, params: Dictionary<String,String>, rawRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func rawRequest(methodName : String, urlString: String, headers: AnyObject?, params: Dictionary<String,String>, rawRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         var err: NSError?
         let currentLocale = NSLocale.currentLocale()
         let localeidentifier: AnyObject? = currentLocale.objectForKey(NSLocaleIdentifier)
@@ -66,13 +80,14 @@ class KuggleAPI :NSObject {
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue(localeidentifierstring, forHTTPHeaderField: "Accept-language")
         // Custom Headers
-        for (key: String, value: String) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
+        if let h : Dictionary<String,String> = headers as? Dictionary<String,String> {
+            for (key: String, value: String) in h {
+                request.setValue(value, forHTTPHeaderField: key)
+            }
         }
         var task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
             if (error == nil) {
                 var jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.allZeros, error: &err)
-                
                 rawRequestCompletionHandler(json: jsonObject, responseError: err)
             } else {
                 rawRequestCompletionHandler(json: nil, responseError: error)
