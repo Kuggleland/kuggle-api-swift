@@ -5,9 +5,40 @@ This is a work in progress.
 
 ## Sample code to query
 
-### Instantiating
+### Instantiating this class
 ```swift
   var kuggle = KuggleAPI.sharedInstance
+```
+
+### Registration using facebook
+#### Parameters
+* 'fbtoken' - This is the token returned from the *OAUTH Dance* from the application. This endpoint will validate the users profile and decide whether or not to create it.
+
+#### Expected Response
+* 'fromfb' - This is what the app has pulled from facebook. Which contains a 'birthday' (Javascript Date format), 'birthdaystring' (format which you can actually serialize back into a javascript date object), 'firstname', 'gender' (0 = female, 1 = male, 2 = other or undisclosed), 'id' (the users facebook ID)
+* 'token' - This is the login token that you need to use on protected endpoints.
+
+#### Other things to note
+* Profile is automatically created. No need to call the create profile endpoint.
+
+```swift
+        k.postRequest("register", token: nil, params: ["fbtoken": "tokengoeshere"], postRequestCompletionHandler: {json,err -> Void in
+            if (err == nil) {
+                let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+                let metaCode = meta.objectForKey("code") as! NSInteger
+                let metaMsg = meta.objectForKey("msg") as! String
+                println(metaCode)
+                println(metaMsg)
+                println(json)
+            } else {
+                if let error : NSError = err as NSError!
+                {
+                    println(error.code)
+                    println(error.domain)
+                }
+            }
+
+        })
 ```
 
 ### Registration by Phone Number
@@ -92,4 +123,3 @@ It will return the following keys:
 Although the API already supports these, here is a sneak preview of what to expect for the code examples
 
 * Creating user profile
-* Registration by facebook
