@@ -23,7 +23,7 @@ class KuggleAPI :NSObject {
         })
     }
     
-    func postRequest(endpointName: String, token: String, params: AnyObject?, postRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func postRequest(endpointName: String, token: AnyObject?, params: AnyObject?, postRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         self.request("POST", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
             postRequestCompletionHandler(json: json, responseError: error)
         })
