@@ -17,19 +17,19 @@ class KuggleAPI :NSObject {
         return "https://api.kuggleland.com/1/"
     }
     
-    func getRequest(endpointName: String, token: AnyObject?, params: Dictionary<String,String>, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func getRequest(endpointName: String, token: AnyObject?, params: AnyObject?, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         self.request("GET", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
             getRequestCompletionHandler(json: json, responseError: error)
         })
     }
     
-    func postRequest(endpointName: String, token: String, params: Dictionary<String,String>, postRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func postRequest(endpointName: String, token: String, params: AnyObject?, postRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         self.request("POST", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
             postRequestCompletionHandler(json: json, responseError: error)
         })
     }
 
-    func request(methodName : String, endpointName: String, token: AnyObject?, params: Dictionary<String,String>, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func request(methodName : String, endpointName: String, token: AnyObject?, params: AnyObject?, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         if let t : String = token as? String {
             rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: ["Token": t], params: params, rawRequestCompletionHandler: {json, error -> Void in
                 let meta = (json as! NSDictionary)["meta"] as! NSDictionary
@@ -58,24 +58,33 @@ class KuggleAPI :NSObject {
     }
     
     // Raw Request
-    func rawRequest(methodName : String, urlString: String, headers: AnyObject?, params: Dictionary<String,String>, rawRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
+    func rawRequest(methodName : String, urlString: String, headers: AnyObject?, params: AnyObject?, rawRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         var err: NSError?
         let currentLocale = NSLocale.currentLocale()
         let localeidentifier: AnyObject? = currentLocale.objectForKey(NSLocaleIdentifier)
         let localeidentifierstring = localeidentifier?.stringValue
         var request = NSMutableURLRequest()
-        if (methodName == "GET" || methodName == "DELETE") {
-            var urlStringWithParams = urlString + "?" + query(params)
-            request = NSMutableURLRequest(URL: NSURL(string: urlStringWithParams)!)
+        if let p : Dictionary<String, String> = params as? Dictionary<String, String> {
+            if (methodName == "GET" || methodName == "DELETE") {
+                var urlStringWithParams = urlString + "?" + query(p)
+                request = NSMutableURLRequest(URL: NSURL(string: urlStringWithParams)!)
+            } else {
+                // POST or PUT with params (dont put them in URL)
+                request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
+            }
         } else {
+            // POST or PUT no params
             request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
         }
 
         var session = NSURLSession.sharedSession()
         request.HTTPMethod = methodName
-        if (methodName == "POST" || methodName == "PUT") {
-            request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-            request.HTTPBody = query(params).dataUsingEncoding(NSUTF8StringEncoding)
+        if let p : Dictionary<String, String> = params as? Dictionary<String, String> {
+            if (methodName == "POST" || methodName == "PUT") {
+                // POST or PUT and PARAMS specified
+                request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+                request.HTTPBody = query(p).dataUsingEncoding(NSUTF8StringEncoding)
+            }
         }
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         request.addValue(localeidentifierstring, forHTTPHeaderField: "Accept-language")
