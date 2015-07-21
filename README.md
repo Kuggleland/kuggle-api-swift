@@ -16,7 +16,7 @@ This is a work in progress.
 
 #### Expected Response
 * 'fromfb' - This is what the app has pulled from facebook. Which contains a 'birthday' (Javascript Date format), 'birthdaystring' (format which you can actually serialize back into a javascript date object), 'firstname', 'gender' (0 = female, 1 = male, 2 = other or undisclosed), 'id' (the users facebook ID)
-* 'token' - This is the login token that you need to use on protected endpoints.
+* 'token' - This is the login token that you need to use on protected endpoints. Only returned if registration was successful. Check NSError and display error.domain to user (this response is localized if you're using this API)
 
 #### Other things to note
 * Profile is automatically created. No need to call the create profile endpoint.
