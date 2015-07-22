@@ -118,6 +118,26 @@ It will return the following keys:
   })
 ```
 
+### Get Balance
+
+Returns your kredits balance as a 'balance' key.
+
+```swift
+  k.getRequest("kredits", token: "USERTOKEN", params: nil, getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+        let balance = jsonResp["balance"] as! NSInteger
+        println(balance)
+      }
+    } else {
+      if let error : NSError = err as NSError! {
+        println(error.code)
+        println(error.domain)
+      }
+    }
+  })
+```
+
 ### Coming soon
 
 Although the API already supports these, here is a sneak preview of what to expect for the code examples
