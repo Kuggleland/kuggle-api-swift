@@ -48,7 +48,7 @@ This is a work in progress.
 This only returns a 'meta' key. 200 is always good. Its automatically read and returns in NSError format. error.code is the HTTP code, and error.domain is the error message (this is also localized depending on the users phone settings)
 
 ```swift
-  kuggle.postRequest("test", token: nil, params: ["phonenumber": "+11234567"], postRequestCompletionHandler: {json,err -> Void in
+  kuggle.postRequest("register", token: nil, params: ["phonenumber": "+11234567"], postRequestCompletionHandler: {json,err -> Void in
     if (err == nil) {
       let meta = (json as! NSDictionary)["meta"] as! NSDictionary
       let metaCode = meta.objectForKey("code") as! NSInteger
