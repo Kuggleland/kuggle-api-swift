@@ -74,7 +74,7 @@ This only returns a 'meta' key. 200 is always good. Its automatically read and r
 This functionality, returns the 'meta' key, as well as 'token' if successfully validated.
 
 ```swift
-  kuggle.postRequest("test", token: nil, params: ["phonenumber": "+11234567", "pin": "12345"], postRequestCompletionHandler: {json,err -> Void in
+  kuggle.postRequest("register", token: nil, params: ["phonenumber": "+11234567", "pin": "12345"], postRequestCompletionHandler: {json,err -> Void in
     if (err == nil) {
       let meta = (json as! NSDictionary)["meta"] as! NSDictionary
       let metaCode = meta.objectForKey("code") as! NSInteger
