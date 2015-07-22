@@ -117,6 +117,32 @@ It will return the following keys:
     }
   })
 ```
+### Create Profile
+
+This functionality is used when a user attempts to use phone number registration.
+
+Either returns success or fail (in status codes)
+
+```swift
+  k.postRequest("profile", token: "EXAMPLE", params: ["firstname": "Joe", "dob": "1990-03-05", "gender": "1"], postRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+        let meta = jsonResp["meta"] as! NSDictionary
+          let metaCode = meta.objectForKey("code") as! NSInteger
+          let metaMsg = meta.objectForKey("msg") as! String
+          println(metaMsg)
+          println(jsonResp)
+      }
+    } else {
+      if let error : NSError = err as NSError!
+        {
+          println(error.code)
+          println(error.domain)
+        }
+    }
+
+  })
+```
 
 ### Get Balance
 
@@ -137,9 +163,3 @@ Returns your kredits balance as a 'balance' key.
     }
   })
 ```
-
-### Coming soon
-
-Although the API already supports these, here is a sneak preview of what to expect for the code examples
-
-* Creating user profile
