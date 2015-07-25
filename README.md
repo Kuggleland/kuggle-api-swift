@@ -3,6 +3,18 @@ Class to interface with the Kuggle backend
 
 This is a work in progress.
 
+## Installation
+
+1. Add the following to your Podfile
+```
+platform :ios
+pod 'KuggleAPI', :git => 'https://github.com/Kuggleland/kuggle-api-swift'
+```
+
+2. Then do a pod install.
+
+There is no step 3.
+
 ## Sample code to query
 
 ### Instantiating this class
