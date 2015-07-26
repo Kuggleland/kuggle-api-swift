@@ -1,7 +1,7 @@
 # Kuggle API Swift class
-Class to interface with the Kuggle backend
+Class to interface with the Kuggle backend in a Swift blocks style API.
 
-This is a work in progress.
+This is a work in progress. Pull requests welcome
 
 ## Attributions
 
