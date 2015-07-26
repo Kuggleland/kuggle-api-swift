@@ -335,7 +335,7 @@ class KuggleAPI :NSObject {
     }
 
     func request(methodName : String, endpointName: String, token: AnyObject?, params: AnyObject?, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
-        if let t : String = token as? String {
+         if let t : String = token as? String {
             rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: ["Token": t], params: params, rawRequestCompletionHandler: {json, error -> Void in
                 if error == nil {
                     let meta = (json as! NSDictionary)["meta"] as! NSDictionary
@@ -352,15 +352,18 @@ class KuggleAPI :NSObject {
             })
         } else {
             rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: nil, params: params, rawRequestCompletionHandler: {json, error -> Void in
-                let meta = (json as! NSDictionary)["meta"] as! NSDictionary
-                let metaCode = meta.objectForKey("code") as! NSInteger
-                let metaMsg = meta.objectForKey("msg") as! String
-                if (metaCode != 200) {
-                    requestCompletionHandler(json: json, responseError: NSError(domain: metaMsg, code: metaCode, userInfo: nil))
+                if error == nil {
+                    let meta = (json as! NSDictionary)["meta"] as! NSDictionary
+                    let metaCode = meta.objectForKey("code") as! NSInteger
+                    let metaMsg = meta.objectForKey("msg") as! String
+                    if (metaCode != 200) {
+                        requestCompletionHandler(json: json, responseError: NSError(domain: metaMsg, code: metaCode, userInfo: nil))
+                    } else {
+                        requestCompletionHandler(json: json, responseError: error)
+                    }
                 } else {
-                    requestCompletionHandler(json: json, responseError: error)
+                    requestCompletionHandler(json: nil, responseError: error)
                 }
-                
             })
         }
     }
@@ -404,7 +407,7 @@ class KuggleAPI :NSObject {
         }
         var task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
             let httpResponse = response as! NSHTTPURLResponse
-            if httpResponse.statusCode == 200 || httpResponse.statusCode == 404 || httpResponse.statusCode == 401 {
+            if httpResponse.statusCode == 200 || httpResponse.statusCode == 404 || httpResponse.statusCode == 401 || httpResponse.statusCode == 400 {
                 // 200 Response, 404, or 401 = Lets try the JSON
                 if (error == nil) {
                     var jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.allZeros, error: &err)
