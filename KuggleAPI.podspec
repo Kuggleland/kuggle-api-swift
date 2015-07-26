@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "KuggleAPI"
-  s.version      = "0.1.20150725"
+  s.version      = "v0.1.20150726"
   s.summary      = "Class to interface with the Kuggleland.com backend"
 
   s.description  = <<-DESC
