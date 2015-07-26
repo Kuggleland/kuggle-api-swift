@@ -46,11 +46,17 @@ There is no step 3.
                 println(metaCode)
                 println(metaMsg)
                 println(json)
+                dispatch_async(dispatch_get_main_queue(),{
+                  self.performSegueWithIdentifier("loggedin", sender: self)
+                })                
             } else {
                 if let error : NSError = err as NSError!
                 {
                     println(error.code)
                     println(error.domain)
+                  dispatch_async(dispatch_get_main_queue(),{
+                    // Do some error thing
+                  })
                 }
             }
 
@@ -98,6 +104,9 @@ This functionality, returns the 'meta' key, as well as 'token' if successfully v
       println(metaCode)
       println(metaMsg)
       println(json)
+      dispatch_async(dispatch_get_main_queue(),{
+        self.performSegueWithIdentifier("pinview", sender: self)
+      })      
     } else {
       if let error : NSError = err as NSError!
       {
@@ -124,6 +133,17 @@ It will return the following keys:
       println(metaCode)
       println(metaMsg)
       println(json)
+      let profilecreated = (json as! NSDictionary)["profilecreated"] as! Bool
+      if (profilecreated == true) {
+        let profile: NSDictionary = (json as! NSDictionary)["profile"] as! NSDictionary
+        dispatch_async(dispatch_get_main_queue(),{
+          self.performSegueWithIdentifier("loggedin", sender: self)
+        })      
+      } else {
+        dispatch_async(dispatch_get_main_queue(),{
+          self.performSegueWithIdentifier("setupprofile", sender: self)
+        })  
+      }
     } else {
       if let error : NSError = err as NSError!
         {
@@ -148,12 +168,16 @@ Either returns success or fail (in status codes)
           let metaMsg = meta.objectForKey("msg") as! String
           println(metaMsg)
           println(jsonResp)
+          dispatch_async(dispatch_get_main_queue(),{
+            self.performSegueWithIdentifier("profilecreated", sender: self)
+          })          
       }
     } else {
       if let error : NSError = err as NSError!
         {
           println(error.code)
           println(error.domain)
+          // Not created
         }
     }
 
