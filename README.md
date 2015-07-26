@@ -3,6 +3,10 @@ Class to interface with the Kuggle backend
 
 This is a work in progress.
 
+## Attributions
+
+* Thanks to [exchangegroup/keychain-swift](https://github.com/exchangegroup/keychain-swift) for the keychain code.
+
 ## Installation
 
 1. Add the following to your Podfile
