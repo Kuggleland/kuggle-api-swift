@@ -3,6 +3,13 @@ Class to interface with the Kuggle backend in a Swift blocks style API.
 
 This is a work in progress. Pull requests welcome
 
+## Useful inbuilt functionality
+* Token keychain saving if there is a token attribute in the JSON dictionary returned
+* Token keychain automatic revocation if there is a 401 error.
+* Detects general HTTP errors like a good internet citizen should. So you should check if the json returned is nil.
+* Sends language header.
+* API is similar to the feel of the AlamoFire framework except it actually supports custom headers a bit better.
+
 ## Attributions
 
 * Thanks to [exchangegroup/keychain-swift](https://github.com/exchangegroup/keychain-swift) for the keychain code.
@@ -32,7 +39,7 @@ There is no step 3.
 
 #### Expected Response
 * 'fromfb' - This is what the app has pulled from facebook. Which contains a 'birthday' (Javascript Date format), 'birthdaystring' (format which you can actually serialize back into a javascript date object), 'firstname', 'gender' (0 = female, 1 = male, 2 = other or undisclosed), 'id' (the users facebook ID)
-* 'token' - This is the login token that you need to use on protected endpoints. Only returned if registration was successful. Check NSError and display error.domain to user (this response is localized if you're using this API)
+* 'token' - This is the login token that you need to use on protected endpoints. For convenience purposes, this class will also save it automatically to the keychain under the value 'token' (eventually may even automatically include it). Only returned if registration was successful. Check NSError and display error.domain to user (this response is localized if you're using this API)
 
 #### Other things to note
 * Profile is automatically created. No need to call the create profile endpoint.
@@ -93,7 +100,7 @@ This only returns a 'meta' key. 200 is always good. Its automatically read and r
 * replace '+11234567' with a phone number thats valid.
 * replace '12345' with a PIN thats valid
 
-This functionality, returns the 'meta' key, as well as 'token' if successfully validated.
+This functionality, returns the 'meta' key, as well as 'token' if successfully validated. For convenience purposes, this class will also save the token automatically to the keychain under the value 'token' (eventually may even automatically include it).
 
 ```swift
   kuggle.postRequest("register", token: nil, params: ["phonenumber": "+11234567", "pin": "12345"], postRequestCompletionHandler: {json,err -> Void in
