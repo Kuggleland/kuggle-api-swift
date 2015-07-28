@@ -43,6 +43,7 @@ There is no step 3.
 
 #### Other things to note
 * Profile is automatically created. No need to call the create profile endpoint.
+* Handle errors. Sometimes bad things happen, server room catches fire, etc etc. Also successful facebook authorization doesn't guarantee that the account gets created (just like being on the guestlist of a popular nightclub doesn't actually guarantee you entry). There's a few behind the scene checks on your account details (whether or not you actually authorized the right things, etc)
 
 ```swift
         k.postRequest("register", token: nil, params: ["fbtoken": "tokengoeshere"], postRequestCompletionHandler: {json,err -> Void in
