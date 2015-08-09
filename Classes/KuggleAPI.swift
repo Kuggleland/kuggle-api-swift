@@ -406,17 +406,21 @@ class KuggleAPI :NSObject {
             }
         }
         var task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
-            let httpResponse = response as! NSHTTPURLResponse
-            if httpResponse.statusCode == 200 || httpResponse.statusCode == 404 || httpResponse.statusCode == 401 || httpResponse.statusCode == 400 {
-                // 200 Response, 404, or 401 = Lets try the JSON
-                if (error == nil) {
-                    var jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.allZeros, error: &err)
-                    rawRequestCompletionHandler(json: jsonObject, responseError: err)
+            if (error == nil) {
+                let httpResponse = response as! NSHTTPURLResponse
+                if httpResponse.statusCode == 200 || httpResponse.statusCode == 404 || httpResponse.statusCode == 401 || httpResponse.statusCode == 400 {
+                    // 200 Response, 404, or 401 = Lets try the JSON
+                    if (error == nil) {
+                        var jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.allZeros, error: &err)
+                        rawRequestCompletionHandler(json: jsonObject, responseError: err)
+                    } else {
+                        rawRequestCompletionHandler(json: nil, responseError: error)
+                    }
                 } else {
-                    rawRequestCompletionHandler(json: nil, responseError: error)
+                    rawRequestCompletionHandler(json: nil, responseError: NSError(domain: "GeneralHTTPError", code: httpResponse.statusCode, userInfo: nil))
                 }
             } else {
-                rawRequestCompletionHandler(json: nil, responseError: NSError(domain: "GeneralHTTPError", code: httpResponse.statusCode, userInfo: nil))
+                rawRequestCompletionHandler(json: nil, responseError: NSError(domain: error.localizedDescription, code: error.code, userInfo: error.userInfo))
             }
         })
         task.resume()
