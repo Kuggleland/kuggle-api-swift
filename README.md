@@ -211,3 +211,76 @@ Returns your kredits balance as a 'balance' key.
     }
   })
 ```
+
+### Purpose
+
+This is the API to create a purpose
+
+Either returns success or fail (in status codes)
+
+**Input Parameters**
+* 'purpose': This is a 120 character or less string
+* 'lat' or 'lng': This is for tagging the purpose to a location if a place is not used.
+* 'placeid': This is for tagging the purpose to a place. A list of places can be found from the nearby/places endpoint.
+* 'type': This is for specifying the purpose type. Either 'goal', 'help', or 'give'
+
+
+```swift
+  k.postRequest("purpose", token: "Token", params: ["purpose": "Need Help with studies!", "lat": "22.283580", "lng": "114.135281", "type": "help"], postRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+        // Purpose created successfully!
+      }
+    } else {
+      if let error : NSError = err as NSError!
+        {
+          println(error.code)
+          println(error.domain)
+          // An error has occured, show error message on the screen (error.domain)
+        }
+    }
+
+  })
+```
+
+### Nearby People / Places
+
+**Parameters**
+* 'lat' or 'lng': This is where the person searching is
+* 'distance': Optional. This is the distance radius for the search in meters. Defaults at 5000 if not specified.
+
+#### Nearby People
+```swift
+  k.getRequest("nearby/people", token: "USERTOKEN", params: ["lat": "22.283580", "lng": "114.135281"], getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+      // Success
+      // There should be a key called 'people' which is the list
+      }
+    } else {
+      if let error : NSError = err as NSError! {
+        println(error.code)
+        println(error.domain)
+        // Error
+      }
+    }
+  })
+```
+
+#### Nearby Places
+```swift
+  k.getRequest("nearby/places", token: "USERTOKEN", params: ["lat": "22.283580", "lng": "114.135281"], getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+      // Success
+      // There should be a key called 'places' which is the list
+      }
+    } else {
+      if let error : NSError = err as NSError! {
+        println(error.code)
+        println(error.domain)
+        // Error
+      }
+    }
+  })
+```
