@@ -218,6 +218,8 @@ This is the API to create a purpose
 
 Either returns success or fail (in status codes)
 
+#### Create Purpose 
+
 **Input Parameters**
 * 'purpose': This is a 120 character or less string
 * 'lat' or 'lng': This is for tagging the purpose to a location if a place is not used.
@@ -240,6 +242,73 @@ Either returns success or fail (in status codes)
         }
     }
 
+  })
+```
+
+#### Like Purpose
+
+* This is the endpoint to like a purpose. It is a POST request with no body against purpose/PURPOSEID/like
+* PURPOSEID can be shown from nearby/people
+* Once you like a purpose, you can't dislike the purpose
+
+```swift
+  k.postRequest("purpose/purposeid/like", token: "Token", params: nil, postRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+        // Purpose liked successfully
+      }
+    } else {
+      if let error : NSError = err as NSError!
+        {
+          println(error.code)
+          println(error.domain)
+          // An error has occured, show error message on the screen (error.domain)
+        }
+    }
+
+  })
+```
+
+#### DisLike Purpose
+
+* This is the endpoint to dislike a purpose. It is a POST request with no body against purpose/PURPOSEID/dislike
+* PURPOSEID can be shown from nearby/people
+* Once you dislike a purpose, you can't like the purpose
+
+```swift
+  k.postRequest("purpose/purposeid/dislike", token: "Token", params: nil, postRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+        // Purpose disliked successfully!
+      }
+    } else {
+      if let error : NSError = err as NSError!
+        {
+          println(error.code)
+          println(error.domain)
+          // An error has occured, show error message on the screen (error.domain)
+        }
+    }
+
+  })
+```
+#### Get last purposes
+
+Shows the last purposes that was set by the user
+
+```swift
+  k.getRequest("purpose", token: "USERTOKEN", params: nil, getRequestCompletionHandler: {json,err -> Void in
+    if (err == nil) {
+      if let jsonResp : NSDictionary = json as? NSDictionary {
+        // Show the last purposes as a 'purposes' key
+      }
+    } else {
+      if let error : NSError = err as NSError! {
+        println(error.code)
+        println(error.domain) // Message returned. This is localized automatically
+
+      }
+    }
   })
 ```
 
