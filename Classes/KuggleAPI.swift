@@ -305,8 +305,17 @@ class KuggleAPI :NSObject {
     }
     
     func getRequest(endpointName: String, token: AnyObject?, params: AnyObject?, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
-        self.request("GET", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
-            
+        var autoToken : AnyObject?
+        if (token != nil) {
+            if (token as? String == "auto") {
+                autoToken = KeychainSwift.get("token")
+            } else {
+                autoToken = token
+            }
+        } else {
+            autoToken = nil
+        }
+        self.request("GET", endpointName: endpointName, token: autoToken, params: params, requestCompletionHandler: {json, error -> Void in
             if (endpointName == "profile") {
                 if (error != nil) {
                     if let errorFlag : NSError = error as NSError! {
@@ -321,7 +330,17 @@ class KuggleAPI :NSObject {
     }
     
     func postRequest(endpointName: String, token: AnyObject?, params: AnyObject?, postRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
-        self.request("POST", endpointName: endpointName, token: token, params: params, requestCompletionHandler: {json, error -> Void in
+        var autoToken : AnyObject?
+        if (token != nil) {
+            if (token as? String == "auto") {
+                autoToken = KeychainSwift.get("token")
+            } else {
+                autoToken = token
+            }
+        } else {
+            autoToken = nil
+        }
+        self.request("POST", endpointName: endpointName, token: autoToken, params: params, requestCompletionHandler: {json, error -> Void in
             if error == nil {
                 // If there is a token (most likely from register endpoint) given lets set it up
                 if let token = (json as! NSDictionary)["token"] as? String {
