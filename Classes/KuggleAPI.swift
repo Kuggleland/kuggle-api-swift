@@ -301,7 +301,7 @@ class KuggleAPI :NSObject {
     }
     
     static func baseURL() -> String {
-        return "https://api.kuggleland.com/1/"
+        return "https://api.kuggleland.com/2/"
     }
     
     func getRequest(endpointName: String, token: AnyObject?, params: AnyObject?, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
@@ -355,7 +355,12 @@ class KuggleAPI :NSObject {
 
     func request(methodName : String, endpointName: String, token: AnyObject?, params: AnyObject?, requestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
          if let t : String = token as? String {
-            rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName, headers: ["Token": t], params: params, rawRequestCompletionHandler: {json, error -> Void in
+            let ts = NSDate().timeIntervalSince1970
+            let tosign = "/2/\(endpointName)||\(ts)"
+            let hmac = tosign.hmac(.SHA512, key: t)
+            let extraParams = "?signature=\(hmac)"
+            print("To Sign: \(tosign) signed: \(hmac)")
+            rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName + extraParams, headers: ["Token": t, "Nonce": "\(ts)"], params: params, rawRequestCompletionHandler: {json, error -> Void in
                 if error == nil {
                     let meta = (json as! NSDictionary)["meta"] as! NSDictionary
                     let metaCode = meta.objectForKey("code") as! NSInteger
@@ -396,7 +401,8 @@ class KuggleAPI :NSObject {
         var request = NSMutableURLRequest()
         if let p : Dictionary<String, String> = params as? Dictionary<String, String> {
             if (methodName == "GET" || methodName == "DELETE") {
-                var urlStringWithParams = urlString + "?" + query(p)
+                let urlStringWithParams = urlString + "&" + query(p)
+                print(urlStringWithParams)
                 request = NSMutableURLRequest(URL: NSURL(string: urlStringWithParams)!)
             } else {
                 // POST or PUT with params (dont put them in URL)
@@ -407,7 +413,7 @@ class KuggleAPI :NSObject {
             request = NSMutableURLRequest(URL: NSURL(string: urlString)!)
         }
 
-        var session = NSURLSession.sharedSession()
+        let session = NSURLSession.sharedSession()
         request.HTTPMethod = methodName
         if let p : Dictionary<String, String> = params as? Dictionary<String, String> {
             if (methodName == "POST" || methodName == "PUT") {
@@ -417,20 +423,35 @@ class KuggleAPI :NSObject {
             }
         }
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue(localeidentifierstring, forHTTPHeaderField: "Accept-language")
+        //request.addValue(localeidentifierstring!, forHTTPHeaderField: "Accept-language")
+        if headers != nil {
+            if headers!["token"] != nil {
+                request.addValue(headers!["Token"] as! String, forHTTPHeaderField: "Token")
+                request.addValue(headers!["Nonce"] as! String, forHTTPHeaderField: "Nonce")
+            }
+        }
         // Custom Headers
         if let h : Dictionary<String,String> = headers as? Dictionary<String,String> {
-            for (key: String, value: String) in h {
+            for (key, value): (String, String) in h {
+                print("Setting value for \(key): \(value)")
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
-        var task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
+        let task = session.dataTaskWithRequest(request, completionHandler: {data, response, error -> Void in
             if (error == nil) {
                 let httpResponse = response as! NSHTTPURLResponse
-                if httpResponse.statusCode == 200 || httpResponse.statusCode == 404 || httpResponse.statusCode == 401 || httpResponse.statusCode == 400 {
+                if httpResponse.statusCode == 200 || httpResponse.statusCode == 404 || httpResponse.statusCode == 401 || httpResponse.statusCode == 400 || httpResponse.statusCode == 429 {
                     // 200 Response, 404, or 401 = Lets try the JSON
                     if (error == nil) {
-                        var jsonObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions.allZeros, error: &err)
+                        var jsonObject: AnyObject?
+                        do {
+                            jsonObject = try NSJSONSerialization.JSONObjectWithData(data!, options: NSJSONReadingOptions())
+                        } catch let error as NSError {
+                            err = error
+                            jsonObject = nil
+                        } catch {
+                            fatalError()
+                        }
                         rawRequestCompletionHandler(json: jsonObject, responseError: err)
                     } else {
                         rawRequestCompletionHandler(json: nil, responseError: error)
@@ -439,7 +460,7 @@ class KuggleAPI :NSObject {
                     rawRequestCompletionHandler(json: nil, responseError: NSError(domain: "GeneralHTTPError", code: httpResponse.statusCode, userInfo: nil))
                 }
             } else {
-                rawRequestCompletionHandler(json: nil, responseError: NSError(domain: error.localizedDescription, code: error.code, userInfo: error.userInfo))
+                rawRequestCompletionHandler(json: nil, responseError: NSError(domain: error!.localizedDescription, code: error!.code, userInfo: error!.userInfo))
             }
         })
         task.resume()
@@ -466,7 +487,7 @@ class KuggleAPI :NSObject {
                 components += queryComponents("\(key)[]", value)
             }
         } else {
-            components.extend([(escape(key), escape("\(value)"))])
+            components.appendContentsOf([(escape(key), escape("\(value)"))])
         }
         
         return components
@@ -474,11 +495,11 @@ class KuggleAPI :NSObject {
     
     func query(parameters: [String: AnyObject]) -> String {
         var components: [(String, String)] = []
-        for key in sorted(Array(parameters.keys), <) {
+        for key in Array(parameters.keys).sort(<) {
             let value: AnyObject! = parameters[key]
             components += self.queryComponents(key, value)
         }
         
-        return join("&", components.map{"\($0)=\($1)"} as [String])
+        return (components.map{"\($0)=\($1)"} as [String]).joinWithSeparator("&")
     }
 }
