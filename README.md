@@ -28,6 +28,11 @@ There is no step 3.
 
 ## Sample code to query
 
+### Add to Bridging Header
+```objc
+#import <CommonCrypto/CommonHMAC.h>
+```
+
 ### Instantiating this class
 ```swift
   var kuggle = KuggleAPI.sharedInstance
