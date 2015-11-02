@@ -304,6 +304,17 @@ class KuggleAPI :NSObject {
         return "https://api.kuggleland.com/2/"
     }
     
+    func tokenToKeychain(token: String) -> Void {
+        KeychainSwift.set(token, forKey: "token")
+    }
+    
+    func tokenHasBeenSet() -> Bool {
+        if let _ = KeychainSwift.get("token") {
+            return true
+        } else {
+            return false
+        }
+    }
     func getRequest(endpointName: String, token: AnyObject?, params: AnyObject?, getRequestCompletionHandler: (json: AnyObject?, responseError: NSError?) -> Void) {
         var autoToken : AnyObject?
         if (token != nil) {
@@ -359,7 +370,7 @@ class KuggleAPI :NSObject {
             let tosign = "/2/\(endpointName)||\(ts)"
             let hmac = tosign.hmac(.SHA512, key: t)
             let extraParams = "?signature=\(hmac)"
-            print("To Sign: \(tosign) signed: \(hmac)")
+            
             rawRequest(methodName, urlString: KuggleAPI.baseURL() + endpointName + extraParams, headers: ["Token": t, "Nonce": "\(ts)"], params: params, rawRequestCompletionHandler: {json, error -> Void in
                 if error == nil {
                     let meta = (json as! NSDictionary)["meta"] as! NSDictionary
@@ -402,7 +413,6 @@ class KuggleAPI :NSObject {
         if let p : Dictionary<String, String> = params as? Dictionary<String, String> {
             if (methodName == "GET" || methodName == "DELETE") {
                 let urlStringWithParams = urlString + "&" + query(p)
-                print(urlStringWithParams)
                 request = NSMutableURLRequest(URL: NSURL(string: urlStringWithParams)!)
             } else {
                 // POST or PUT with params (dont put them in URL)
@@ -433,7 +443,6 @@ class KuggleAPI :NSObject {
         // Custom Headers
         if let h : Dictionary<String,String> = headers as? Dictionary<String,String> {
             for (key, value): (String, String) in h {
-                print("Setting value for \(key): \(value)")
                 request.setValue(value, forHTTPHeaderField: key)
             }
         }
